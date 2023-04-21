@@ -69,7 +69,7 @@ func TestDelete(t *testing.T) {
 
 	c.Delete("x") // delete from empty cache is ok
 
-	c.Set("k", "v", 5*time.Second)
+	c.SetNoExpire("k", "v")
 	c.Delete("k")
 	v, found := c.Get("k")
 	if found || v != nil {
