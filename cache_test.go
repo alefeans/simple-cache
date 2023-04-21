@@ -7,6 +7,7 @@ import (
 
 func TestGetSet(t *testing.T) {
 	c := NewCache()
+
 	v, found := c.Get("new")
 	if found || v != nil {
 		t.Errorf("Found %v value with empty cache", v)
@@ -68,7 +69,6 @@ func TestDelete(t *testing.T) {
 	c := NewCache()
 
 	c.Delete("x") // delete from empty cache is ok
-
 	c.SetNoExpire("k", "v")
 	c.Delete("k")
 	v, found := c.Get("k")
@@ -78,5 +78,22 @@ func TestDelete(t *testing.T) {
 
 	if len(c.entries) != 0 {
 		t.Error("Empty cache entries length is different from 0")
+	}
+}
+
+func TestClear(t *testing.T) {
+	c := NewCache()
+
+	c.SetNoExpire("k1", "v1")
+	c.SetNoExpire("k2", "v2")
+	c.SetNoExpire("k3", "v3")
+	c.Clear()
+	v, found := c.Get("k1")
+	if found || v != nil {
+		t.Errorf("Got value %v, found %t, but should be nil", v, found)
+	}
+
+	if len(c.entries) != 0 {
+		t.Error("Empty ache entries length is different from 0")
 	}
 }

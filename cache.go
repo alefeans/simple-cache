@@ -49,3 +49,7 @@ func (c *Cache) SetNoExpire(key string, value any) {
 func (c *Cache) Delete(key string) {
 	delete(c.entries, key)
 }
+
+func (c *Cache) Clear() {
+	c.entries = make(map[string]Entry)
+}
