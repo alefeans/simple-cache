@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestGetSet(t *testing.T) {
+func TestGetSetNoExpire(t *testing.T) {
 	c := NewCache()
 
 	v, found := c.Get("new")
@@ -41,16 +41,9 @@ func TestGetSet(t *testing.T) {
 	if !found || v == nil || v != 3 {
 		t.Errorf("Got value %v, found %t, but should be 3", v, found)
 	}
-
-	c.Set("replace set", 2, 5*time.Second)
-	c.Set("replace set", 3, 5*time.Second)
-	v, found = c.Get("replace set")
-	if !found || v == nil || v != 3 {
-		t.Errorf("Got value %v, found %t, but should be 3", v, found)
-	}
 }
 
-func TestExpiration(t *testing.T) {
+func TestSet(t *testing.T) {
 	c := NewCache()
 
 	c.Set("negative", "expiration", -1)
@@ -69,6 +62,13 @@ func TestExpiration(t *testing.T) {
 	v, found = c.Get("k")
 	if !found || v == nil || v != "v" {
 		t.Errorf("Got value %v, found %t", v, found)
+	}
+
+	c.Set("replace set", 2, 5*time.Second)
+	c.Set("replace set", 3, 5*time.Second)
+	v, found = c.Get("replace set")
+	if !found || v == nil || v != 3 {
+		t.Errorf("Got value %v, found %t, but should be 3", v, found)
 	}
 
 	c.Set("expired", 1, 1*time.Nanosecond)
