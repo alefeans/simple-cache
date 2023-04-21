@@ -31,14 +31,11 @@ func NewCache() *Cache {
 }
 
 func (c *Cache) Get(key string) (any, bool) {
-	v, found := c.entries[key]
-	if !found {
+	e, found := c.entries[key]
+	if !found || e.Expired() {
 		return nil, false
 	}
-	if v.Expired() {
-		return nil, false
-	}
-	return v.Value, true
+	return e.Value, true
 }
 
 func (c *Cache) Set(key string, value any, expiration time.Duration) {
