@@ -1,8 +1,6 @@
 package cache
 
-import (
-	"time"
-)
+import "time"
 
 const NoExpiration int64 = -1
 
@@ -51,4 +49,3 @@ func (c *Cache) SetNoExpire(key string, value any) {
 func (c *Cache) Delete(key string) {
 	delete(c.entries, key)
 }
-
