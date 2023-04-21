@@ -34,6 +34,20 @@ func TestGetSet(t *testing.T) {
 	} else {
 		t.Errorf("Expected a pointer to int, but got %T", p)
 	}
+
+	c.SetNoExpire("replace", 2)
+	c.SetNoExpire("replace", 3)
+	v, found = c.Get("replace")
+	if !found || v == nil || v != 3 {
+		t.Errorf("Got value %v, found %t, but should be 3", v, found)
+	}
+
+	c.Set("replace set", 2, 5*time.Second)
+	c.Set("replace set", 3, 5*time.Second)
+	v, found = c.Get("replace set")
+	if !found || v == nil || v != 3 {
+		t.Errorf("Got value %v, found %t, but should be 3", v, found)
+	}
 }
 
 func TestExpiration(t *testing.T) {
@@ -62,6 +76,22 @@ func TestExpiration(t *testing.T) {
 	v, found = c.Get("expired")
 	if found || v == 1 {
 		t.Errorf("Got value %v and found %t, but should be expired", v, found)
+	}
+
+	c.Set("replace timeout", 2, 10*time.Millisecond)
+	c.Set("replace timeout", 3, 20*time.Millisecond)
+	<-time.After(10 * time.Millisecond)
+	v, found = c.Get("replace timeout")
+	if !found || v == nil || v != 3 {
+		t.Errorf("Got value %v, found %t, but should be 3 and not expired", v, found)
+	}
+
+	c.Set("replace expired", 3, 20*time.Millisecond)
+	c.Set("replace expired", 2, 10*time.Millisecond)
+	<-time.After(10 * time.Millisecond)
+	v, found = c.Get("replace expired")
+	if found || v == 3 {
+		t.Errorf("Got value %v, found %t, but should be expired", v, found)
 	}
 }
 
