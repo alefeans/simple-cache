@@ -4,6 +4,8 @@ import (
 	"time"
 )
 
+const NoExpiration int64 = -1
+
 type Entry struct {
 	Expiration int64
 	Value      any
@@ -19,10 +21,6 @@ func (e *Entry) Expired() bool {
 type Cache struct {
 	entries map[string]Entry
 }
-
-const (
-	NoExpiration int64 = -1
-)
 
 func NewCache() *Cache {
 	return &Cache{
@@ -49,3 +47,8 @@ func (c *Cache) Set(key string, value any, expiration time.Duration) {
 func (c *Cache) SetNoExpire(key string, value any) {
 	c.entries[key] = Entry{Value: value, Expiration: NoExpiration}
 }
+
+func (c *Cache) Delete(key string) {
+	delete(c.entries, key)
+}
+

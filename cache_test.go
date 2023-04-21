@@ -63,3 +63,20 @@ func TestExpiration(t *testing.T) {
 		t.Errorf("Got value %v and found %t, but should be expired", v, found)
 	}
 }
+
+func TestDelete(t *testing.T) {
+	c := NewCache()
+
+	c.Delete("x") // delete from empty cache is ok
+
+	c.Set("k", "v", 5*time.Second)
+	c.Delete("k")
+	v, found := c.Get("k")
+	if found || v != nil {
+		t.Errorf("Got value %v, found %t, but should be nil", v, found)
+	}
+
+	if len(c.entries) != 0 {
+		t.Error("Empty cache entries length is different from 0")
+	}
+}
