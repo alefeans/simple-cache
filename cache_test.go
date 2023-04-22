@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func TestGetSetNoExpire(t *testing.T) {
+func TestGetAndSetNoExpire(t *testing.T) {
 	c := NewCache()
 
 	v, found := c.Get("new")
