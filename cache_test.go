@@ -125,6 +125,18 @@ func TestDelete(t *testing.T) {
 	if len(c.entries) != 0 {
 		t.Error("Empty cache entries length is different from 0")
 	}
+
+	c.SetNoExpire("k1", "v1")
+	c.SetNoExpire("k2", "v2")
+	c.Delete("k1")
+	v, found = c.Get("k2")
+	if !found || v == nil || v != "v2" {
+		t.Errorf("Got value %v, found %t", v, found)
+	}
+
+	if len(c.entries) != 1 {
+		t.Error("Empty cache entries length is different from 1")
+	}
 }
 
 func TestClear(t *testing.T) {
