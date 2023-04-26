@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetAndSetNoExpire(t *testing.T) {
-	c := NewCache(10 * time.Millisecond)
+	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
 
 	v, found := c.Get("new")
 	if found || v != nil {
@@ -44,7 +44,7 @@ func TestGetAndSetNoExpire(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	c := NewCache(10 * time.Millisecond)
+	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
 
 	c.Set("negative", "expiration", -1)
 	v, found := c.Get("negative")
@@ -96,7 +96,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestSetDefault(t *testing.T) {
-	c := NewCache(10 * time.Millisecond)
+	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
 
 	c.SetDefault("k", "v")
 	v, found := c.Get("k")
@@ -112,7 +112,7 @@ func TestSetDefault(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	c := NewCache(10 * time.Millisecond)
+	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
 
 	c.Delete("x") // delete from empty cache is ok
 	c.SetNoExpire("k", "v")
@@ -140,7 +140,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	c := NewCache(10 * time.Millisecond)
+	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
 
 	c.SetNoExpire("k1", "v1")
 	c.SetNoExpire("k2", "v2")

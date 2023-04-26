@@ -19,12 +19,14 @@ func (e *Entry) Expired() bool {
 type Cache struct {
 	entries           map[string]Entry
 	defaultExpiration time.Duration
+	cleanupInterval   time.Duration
 }
 
-func NewCache(defaultExpiration time.Duration) *Cache {
+func NewCache(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	return &Cache{
 		entries:           make(map[string]Entry),
 		defaultExpiration: defaultExpiration,
+		cleanupInterval:   cleanupInterval,
 	}
 }
 
@@ -38,18 +40,18 @@ func (c *Cache) Get(key string) (any, bool) {
 
 func (c *Cache) Set(key string, value any, expiration time.Duration) {
 	if expiration < 1 {
-		c.SetNoExpire(key, value)
+		c.entries[key] = Entry{Value: value, Expiration: NoExpiration}
 		return
 	}
 	c.entries[key] = Entry{Value: value, Expiration: time.Now().Add(expiration).UnixNano()}
 }
 
 func (c *Cache) SetDefault(key string, value any) {
-	c.entries[key] = Entry{Value: value, Expiration: time.Now().Add(c.defaultExpiration).UnixNano()}
+	c.Set(key, value, c.defaultExpiration)
 }
 
 func (c *Cache) SetNoExpire(key string, value any) {
-	c.entries[key] = Entry{Value: value, Expiration: NoExpiration}
+	c.Set(key, value, time.Duration(NoExpiration))
 }
 
 func (c *Cache) Delete(key string) {
