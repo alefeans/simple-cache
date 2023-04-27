@@ -169,3 +169,17 @@ func TestCleanupExpired(t *testing.T) {
 		t.Error("Empty ache entries length is different from 2")
 	}
 }
+
+func TestStopCleanup(t *testing.T) {
+	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
+
+	c.StopCleanup()
+	c.SetNoExpire("k1", "v1")
+	c.Set("k2", "v2", 1*time.Second)
+	c.Set("k3", "v3", 1*time.Millisecond)
+	c.Set("k4", "v4", 5*time.Millisecond)
+	<-time.After(6 * time.Millisecond)
+	if len(c.entries) != 4 {
+		t.Errorf("Empty ache entries length is different from 4")
+	}
+}
