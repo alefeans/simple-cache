@@ -20,14 +20,18 @@ type Cache struct {
 	entries           map[string]Entry
 	defaultExpiration time.Duration
 	cleanupInterval   time.Duration
+	stopCleanup       chan bool
 }
 
 func NewCache(defaultExpiration, cleanupInterval time.Duration) *Cache {
-	return &Cache{
+	c := &Cache{
 		entries:           make(map[string]Entry),
 		defaultExpiration: defaultExpiration,
 		cleanupInterval:   cleanupInterval,
+		stopCleanup:       make(chan bool),
 	}
+	go c.cleanupExpired()
+	return c
 }
 
 func (c *Cache) Get(key string) (any, bool) {
@@ -60,4 +64,25 @@ func (c *Cache) Delete(key string) {
 
 func (c *Cache) Clear() {
 	c.entries = make(map[string]Entry)
+}
+
+func (c *Cache) StopCleanup() {
+	c.stopCleanup <- true
+}
+
+func (c *Cache) cleanupExpired() {
+	ticker := time.NewTicker(c.cleanupInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			for k, e := range c.entries {
+				if e.Expired() {
+					c.Delete(k)
+				}
+			}
+		case <-c.stopCleanup:
+			return
+		}
+	}
 }
