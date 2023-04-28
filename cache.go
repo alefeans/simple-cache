@@ -1,6 +1,9 @@
 package cache
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 const NoExpiration int64 = -1
 
@@ -17,6 +20,7 @@ func (e *Entry) Expired() bool {
 }
 
 type Cache struct {
+	mu                sync.RWMutex
 	entries           map[string]Entry
 	defaultExpiration time.Duration
 	cleanupInterval   time.Duration
@@ -35,7 +39,9 @@ func NewCache(defaultExpiration, cleanupInterval time.Duration) *Cache {
 }
 
 func (c *Cache) Get(key string) (any, bool) {
+	c.mu.RLock()
 	e, found := c.entries[key]
+	c.mu.RUnlock()
 	if !found || e.Expired() {
 		return nil, false
 	}
@@ -44,10 +50,16 @@ func (c *Cache) Get(key string) (any, bool) {
 
 func (c *Cache) Set(key string, value any, expiration time.Duration) {
 	if expiration < 1 {
-		c.entries[key] = Entry{Value: value, Expiration: NoExpiration}
+		c.set(key, value, NoExpiration)
 		return
 	}
-	c.entries[key] = Entry{Value: value, Expiration: time.Now().Add(expiration).UnixNano()}
+	c.set(key, value, time.Now().Add(expiration).UnixNano())
+}
+
+func (c *Cache) set(key string, value any, expiration int64) {
+	c.mu.Lock()
+	c.entries[key] = Entry{Value: value, Expiration: expiration}
+	c.mu.Unlock()
 }
 
 func (c *Cache) SetDefault(key string, value any) {
@@ -63,11 +75,23 @@ func (c *Cache) Delete(key string) {
 }
 
 func (c *Cache) Clear() {
+	c.mu.Lock()
 	c.entries = make(map[string]Entry)
+	c.mu.Unlock()
 }
 
 func (c *Cache) StopCleanup() {
 	c.stopCleanup <- true
+}
+
+func (c *Cache) deleteExpired() {
+	c.mu.Lock()
+	for k, e := range c.entries {
+		if e.Expired() {
+			c.Delete(k)
+		}
+	}
+	c.mu.Unlock()
 }
 
 func (c *Cache) cleanupExpired() {
@@ -76,11 +100,7 @@ func (c *Cache) cleanupExpired() {
 	for {
 		select {
 		case <-ticker.C:
-			for k, e := range c.entries {
-				if e.Expired() {
-					c.Delete(k)
-				}
-			}
+			c.deleteExpired()
 		case <-c.stopCleanup:
 			return
 		}
