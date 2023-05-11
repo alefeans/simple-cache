@@ -183,3 +183,13 @@ func TestStopCleanup(t *testing.T) {
 		t.Errorf("Empty ache entries length is different from 4")
 	}
 }
+
+func BenchmarkCacheSetDelete(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.SetDefault("foo", "bar")
+		c.Delete("foo")
+	}
+}
