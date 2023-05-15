@@ -71,7 +71,9 @@ func (c *Cache) SetNoExpire(key string, value any) {
 }
 
 func (c *Cache) Delete(key string) {
+	c.mu.Lock()
 	delete(c.entries, key)
+	c.mu.Unlock()
 }
 
 func (c *Cache) Clear() {
@@ -88,7 +90,7 @@ func (c *Cache) deleteExpired() {
 	c.mu.Lock()
 	for k, e := range c.entries {
 		if e.Expired() {
-			c.Delete(k)
+			delete(c.entries, k)
 		}
 	}
 	c.mu.Unlock()
