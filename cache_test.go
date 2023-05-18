@@ -200,3 +200,50 @@ func TestCloseCache(t *testing.T) {
 		t.Error("Channel is not closed")
 	}
 }
+
+func BenchmarkCacheGet(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Second, 5*time.Second)
+	c.SetNoExpire("k", "v")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.Get("k")
+	}
+}
+
+func BenchmarkCacheSet(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Second, 5*time.Second)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.Set("k", "v", 3*time.Second)
+	}
+}
+
+func BenchmarkCacheSetDefault(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Second, 5*time.Second)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.SetDefault("k", "v")
+	}
+}
+
+func BenchmarkCacheSetNoExpire(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Second, 5*time.Second)
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.SetNoExpire("k", "v")
+	}
+}
+
+func BenchmarkCacheDelete(b *testing.B) {
+	b.StopTimer()
+	c := NewCache(2*time.Second, 5*time.Second)
+	c.SetNoExpire("k", "v")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		c.Delete("k")
+	}
+}
