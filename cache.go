@@ -12,6 +12,7 @@ type Entry struct {
 	Value      any
 }
 
+// Expired returns true if Expiration is lower than current time
 func (e *Entry) Expired() bool {
 	if e.Expiration == NoExpiration {
 		return false
@@ -27,6 +28,9 @@ type Cache struct {
 	stopCleanup       chan bool
 }
 
+// New returns a new Cache using defaultExpiration as expiration 
+// time when adding an entry using SetDefault. The cleanupInterval 
+// is used to remove entries from the cache that are already expired.
 func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	c := &Cache{
 		entries:           make(map[string]Entry),
@@ -38,6 +42,8 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	return c
 }
 
+// Get an entry from the cache. Returns the entry value or nil, and a bool 
+// indicating if it was found.
 func (c *Cache) Get(key string) (any, bool) {
 	c.mu.RLock()
 	e, found := c.entries[key]
@@ -47,7 +53,8 @@ func (c *Cache) Get(key string) (any, bool) {
 	}
 	return e.Value, true
 }
-
+// Set adds an entry to the cache, replacing existing entry if has the same key.
+// If expiration is lower than 1, the entry never expires.
 func (c *Cache) Set(key string, value any, expiration time.Duration) {
 	if expiration < 1 {
 		c.set(key, value, NoExpiration)
@@ -62,20 +69,25 @@ func (c *Cache) set(key string, value any, expiration int64) {
 	c.mu.Unlock()
 }
 
+// SetDefault adds an entry to the cache, using Cache.defaultExpiration as
+// the expiration time.
 func (c *Cache) SetDefault(key string, value any) {
 	c.Set(key, value, c.defaultExpiration)
 }
 
+// SetNoExpire adds an entry to the cache that never expires.
 func (c *Cache) SetNoExpire(key string, value any) {
 	c.Set(key, value, time.Duration(NoExpiration))
 }
 
+// Delete entry from the cache.
 func (c *Cache) Delete(key string) {
 	c.mu.Lock()
 	delete(c.entries, key)
 	c.mu.Unlock()
 }
 
+// Clear all entries from the cache.
 func (c *Cache) Clear() {
 	c.mu.Lock()
 	c.entries = make(map[string]Entry)
@@ -110,6 +122,8 @@ func (c *Cache) cleanupExpired() {
 	}
 }
 
+// Close clear all entries from the Cache and stops the cleanup goroutine,
+// gracefully freeing all used resources.
 func (c *Cache) Close() {
 	c.Clear()
 	c.StopCleanup()
