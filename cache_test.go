@@ -152,7 +152,7 @@ func TestClear(t *testing.T) {
 	}
 
 	if len(c.entries) != 0 {
-		t.Error("Empty ache entries length is different from 0")
+		t.Error("Empty cache entries length is different from 0")
 	}
 }
 
@@ -166,7 +166,7 @@ func TestCleanupExpired(t *testing.T) {
 	c.Set("k5", "v5", 5*time.Millisecond)
 	<-time.After(6 * time.Millisecond)
 	if len(c.entries) != 2 {
-		t.Error("Empty ache entries length is different from 2")
+		t.Error("Cache entries length is different from 2")
 	}
 }
 
@@ -180,16 +180,23 @@ func TestStopCleanup(t *testing.T) {
 	c.Set("k4", "v4", 5*time.Millisecond)
 	<-time.After(6 * time.Millisecond)
 	if len(c.entries) != 4 {
-		t.Errorf("Empty ache entries length is different from 4")
+		t.Errorf("Cache entries length is different from 4")
 	}
 }
 
-func BenchmarkCacheSetDelete(b *testing.B) {
-	b.StopTimer()
+func TestCloseCache(t *testing.T) {
 	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		c.SetDefault("foo", "bar")
-		c.Delete("foo")
+	c.SetNoExpire("k1", "v1")
+	c.Set("k2", "v2", 1*time.Second)
+	c.Set("k3", "v3", 1*time.Millisecond)
+	c.Set("k4", "v4", 5*time.Millisecond)
+	c.Close()
+	if len(c.entries) > 0 {
+		t.Errorf("Closed cache entries length is different from 0")
+	}
+	select {
+	case <-c.stopCleanup:
+	default:
+		t.Error("Channel is not closed")
 	}
 }

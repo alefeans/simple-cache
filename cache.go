@@ -84,6 +84,7 @@ func (c *Cache) Clear() {
 
 func (c *Cache) StopCleanup() {
 	c.stopCleanup <- true
+	close(c.stopCleanup)
 }
 
 func (c *Cache) deleteExpired() {
@@ -107,4 +108,9 @@ func (c *Cache) cleanupExpired() {
 			return
 		}
 	}
+}
+
+func (c *Cache) Close(){
+	c.Clear()
+	c.StopCleanup()
 }
