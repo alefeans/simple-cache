@@ -28,8 +28,8 @@ type Cache struct {
 	stopCleanup       chan bool
 }
 
-// New returns a new Cache using defaultExpiration as expiration 
-// time when adding an entry using SetDefault. The cleanupInterval 
+// New returns a new Cache using defaultExpiration as expiration
+// time when adding an entry using SetDefault. The cleanupInterval
 // is used to remove entries from the cache that are already expired.
 func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	c := &Cache{
@@ -42,7 +42,7 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	return c
 }
 
-// Get an entry from the cache. Returns the entry value or nil, and a bool 
+// Get an entry from the cache. Returns the entry value or nil, and a bool
 // indicating if it was found.
 func (c *Cache) Get(key string) (any, bool) {
 	c.mu.RLock()
@@ -53,6 +53,7 @@ func (c *Cache) Get(key string) (any, bool) {
 	}
 	return e.Value, true
 }
+
 // Set adds an entry to the cache, replacing existing entry if has the same key.
 // If expiration is lower than 1, the entry never expires.
 func (c *Cache) Set(key string, value any, expiration time.Duration) {
@@ -127,4 +128,13 @@ func (c *Cache) cleanupExpired() {
 func (c *Cache) Close() {
 	c.Clear()
 	c.StopCleanup()
+}
+
+// Length return the number of entries in the cache, possibly including
+// expired entries that weren't cleaned yet.
+func (c *Cache) Length() int {
+	c.mu.RLock()
+	length := len(c.entries)
+	c.mu.RUnlock()
+	return length
 }

@@ -201,6 +201,18 @@ func TestCloseCache(t *testing.T) {
 	}
 }
 
+func TestLength(t *testing.T) {
+	c := New(2*time.Millisecond, 5*time.Millisecond)
+
+	c.SetNoExpire("k1", "v1")
+	c.SetNoExpire("k2", "v2")
+	c.SetNoExpire("k3", "v3")
+	c.SetNoExpire("k4", "v4")
+	if c.Length() != 4 {
+		t.Errorf("Cache length is different from 4")
+	}
+}
+
 func BenchmarkCacheGet(b *testing.B) {
 	b.StopTimer()
 	c := New(2*time.Second, 5*time.Second)
