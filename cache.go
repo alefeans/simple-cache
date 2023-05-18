@@ -27,7 +27,7 @@ type Cache struct {
 	stopCleanup       chan bool
 }
 
-func NewCache(defaultExpiration, cleanupInterval time.Duration) *Cache {
+func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	c := &Cache{
 		entries:           make(map[string]Entry),
 		defaultExpiration: defaultExpiration,
@@ -110,7 +110,7 @@ func (c *Cache) cleanupExpired() {
 	}
 }
 
-func (c *Cache) Close(){
+func (c *Cache) Close() {
 	c.Clear()
 	c.StopCleanup()
 }

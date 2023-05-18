@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetAndSetNoExpire(t *testing.T) {
-	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
+	c := New(10*time.Millisecond, 20*time.Millisecond)
 
 	v, found := c.Get("new")
 	if found || v != nil {
@@ -44,7 +44,7 @@ func TestGetAndSetNoExpire(t *testing.T) {
 }
 
 func TestSet(t *testing.T) {
-	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
+	c := New(10*time.Millisecond, 20*time.Millisecond)
 
 	c.Set("negative", "expiration", -1)
 	v, found := c.Get("negative")
@@ -96,7 +96,7 @@ func TestSet(t *testing.T) {
 }
 
 func TestSetDefault(t *testing.T) {
-	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
+	c := New(10*time.Millisecond, 20*time.Millisecond)
 
 	c.SetDefault("k", "v")
 	v, found := c.Get("k")
@@ -112,7 +112,7 @@ func TestSetDefault(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
+	c := New(10*time.Millisecond, 20*time.Millisecond)
 
 	c.Delete("x") // delete from empty cache is ok
 	c.SetNoExpire("k", "v")
@@ -140,7 +140,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	c := NewCache(10*time.Millisecond, 20*time.Millisecond)
+	c := New(10*time.Millisecond, 20*time.Millisecond)
 
 	c.SetNoExpire("k1", "v1")
 	c.SetNoExpire("k2", "v2")
@@ -157,7 +157,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestCleanupExpired(t *testing.T) {
-	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
+	c := New(2*time.Millisecond, 5*time.Millisecond)
 
 	c.SetNoExpire("k1", "v1")
 	c.SetDefault("k2", "v2")
@@ -171,7 +171,7 @@ func TestCleanupExpired(t *testing.T) {
 }
 
 func TestStopCleanup(t *testing.T) {
-	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
+	c := New(2*time.Millisecond, 5*time.Millisecond)
 
 	c.StopCleanup()
 	c.SetNoExpire("k1", "v1")
@@ -185,7 +185,7 @@ func TestStopCleanup(t *testing.T) {
 }
 
 func TestCloseCache(t *testing.T) {
-	c := NewCache(2*time.Millisecond, 5*time.Millisecond)
+	c := New(2*time.Millisecond, 5*time.Millisecond)
 	c.SetNoExpire("k1", "v1")
 	c.Set("k2", "v2", 1*time.Second)
 	c.Set("k3", "v3", 1*time.Millisecond)
@@ -203,7 +203,7 @@ func TestCloseCache(t *testing.T) {
 
 func BenchmarkCacheGet(b *testing.B) {
 	b.StopTimer()
-	c := NewCache(2*time.Second, 5*time.Second)
+	c := New(2*time.Second, 5*time.Second)
 	c.SetNoExpire("k", "v")
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
@@ -213,7 +213,7 @@ func BenchmarkCacheGet(b *testing.B) {
 
 func BenchmarkCacheSet(b *testing.B) {
 	b.StopTimer()
-	c := NewCache(2*time.Second, 5*time.Second)
+	c := New(2*time.Second, 5*time.Second)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		c.Set("k", "v", 3*time.Second)
@@ -222,7 +222,7 @@ func BenchmarkCacheSet(b *testing.B) {
 
 func BenchmarkCacheSetDefault(b *testing.B) {
 	b.StopTimer()
-	c := NewCache(2*time.Second, 5*time.Second)
+	c := New(2*time.Second, 5*time.Second)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		c.SetDefault("k", "v")
@@ -231,7 +231,7 @@ func BenchmarkCacheSetDefault(b *testing.B) {
 
 func BenchmarkCacheSetNoExpire(b *testing.B) {
 	b.StopTimer()
-	c := NewCache(2*time.Second, 5*time.Second)
+	c := New(2*time.Second, 5*time.Second)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		c.SetNoExpire("k", "v")
@@ -240,7 +240,7 @@ func BenchmarkCacheSetNoExpire(b *testing.B) {
 
 func BenchmarkCacheDelete(b *testing.B) {
 	b.StopTimer()
-	c := NewCache(2*time.Second, 5*time.Second)
+	c := New(2*time.Second, 5*time.Second)
 	c.SetNoExpire("k", "v")
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
