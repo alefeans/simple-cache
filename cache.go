@@ -95,6 +95,7 @@ func (c *Cache) Clear() {
 	c.mu.Unlock()
 }
 
+// Stops the cleanup goroutine from removing expired entries in the Cache.
 func (c *Cache) StopCleanup() {
 	c.stopCleanup <- true
 	close(c.stopCleanup)
