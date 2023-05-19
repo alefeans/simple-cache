@@ -44,7 +44,7 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 }
 
 // Get an entry from the cache. Returns the entry value or nil, and
-// a boolindicating if it was found.
+// a bool indicating if it was found.
 func (c *Cache) Get(key string) (any, bool) {
 	c.mu.RLock()
 	e, found := c.entries[key]
