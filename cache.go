@@ -128,8 +128,8 @@ func (c *Cache) cleanupExpired() {
 // Close clear all entries from the cache and stops the cleanup goroutine,
 // gracefully freeing all used resources.
 func (c *Cache) Close() {
-	c.Clear()
 	c.StopCleanup()
+	c.Clear()
 }
 
 // Length return the number of entries in the cache, possibly including
