@@ -1,5 +1,8 @@
 # simple-cache
 
+![workflow status](https://github.com/alefeans/simple-cache/actions/workflows/go.yml/badge.svg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/alefeans/simple-cache/.svg)](https://pkg.go.dev/github.com/alefeans/simple-cache/)
+
 `simple-cache` is a lightweight and thread-safe in-memory key-value cache library for Go. It provides a simple and efficient way to store and retrieve any kind of data with expiration times.
 
 ### Installing
